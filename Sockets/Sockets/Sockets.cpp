@@ -4,11 +4,11 @@
 //#include "stdafx.h"
 
 using namespace std;
+
 int main()
 {
 	SOCKET serverSocket, acceptSocket;
 	int port = 55555;
-	const char* adr = "127.0.0.1";
 	WSADATA wsaData;
 	int wsaerr;
 	WORD wVersionRequested = MAKEWORD(2, 2);
@@ -57,25 +57,35 @@ int main()
 	else
 		cout << "Listen() is OK! Waiting somebody..." << endl;
 
-	acceptSocket = accept(serverSocket, NULL, NULL);
-	if (acceptSocket == INVALID_SOCKET)
-	{
-		cout << "accept failed:" << WSAGetLastError() << endl;
-		WSACleanup();
-		return -1;
+	char receiveBuffer[1024] = "";
+	while (true) {
+		while (true)
+		{
+			acceptSocket = accept(serverSocket, NULL, NULL);
+			if (acceptSocket == INVALID_SOCKET)
+			{
+				cout << "accept failed:" << WSAGetLastError() << endl;
+				WSACleanup();
+				return -1;
+			}
+			else {
+				cout << "Accepted connection!" << endl;
+				break;
+			}
+		}
+		while (true)
+		{
+			int byteCount = recv(acceptSocket, receiveBuffer, sizeof(receiveBuffer), 0);
+			if (byteCount < 0) {
+				printf("error %1d.\n", WSAGetLastError());
+				break;
+			}
+			else
+			{
+				printf("Received: %s \n", receiveBuffer);
+			}
+		}
+
 	}
-	cout << "Accepted connection!" << endl;
-	system("pause");
-	char receiveBuffer[200] = "";
-	int byteCount = recv(acceptSocket, receiveBuffer, 200, 0);
-	if (byteCount < 0) {
-		printf("error %1d.\n", WSAGetLastError());
-		return 0;
-	}
-	else
-	{
-		printf("Received: %s \n", receiveBuffer);
-	}
-	
 	WSACleanup();
 }

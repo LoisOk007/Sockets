@@ -50,12 +50,19 @@ int main()
 		cout << "connect() is OK!" << endl;
 	}
 
-	char buffer[200];
+	char buffer[1024];
+	string line;
 	while (true)
 	{
 		printf("Enter your message:");
-		cin.getline(buffer, 200);
-		int byteCount = send(clientSocket, buffer, 200, 0);
+		cin >> line;
+		if (sizeof(line) >= sizeof(buffer))
+			printf("Sending message is too long(Above 1024 bytes)");
+		for (size_t i = 0; i < sizeof(line); i++)
+		{
+			buffer[i] = line[i];
+		}
+		int byteCount = send(clientSocket, buffer, 1024, 0);
 		if (buffer == "Close") {
 			closesocket(clientSocket);
 			WSACleanup();
